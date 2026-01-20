@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {db} from "../config/db.js";
-import { randomBytes } from 'node:crypto';
+import {randomBytes} from 'node:crypto';
 import bcrypt from "bcryptjs";
 
 
@@ -37,9 +37,16 @@ export const authRoute = (ctx) => {
         // сохраняем рефреш токен в базу
         await db.query('INSERT INTO refresh_token(user_id, token, expires_at) VALUES($1, $2, $3)', [user.id_user, refreshToken, expiresAt])
 
+        res.setCookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            path: '/',
+            expires: expiresAt,
+        })
+
         return {
             accessToken,
-            refreshToken,
             user: {
                 id: user.id_user,
                 role: user.role_id,
@@ -47,6 +54,35 @@ export const authRoute = (ctx) => {
             }
         }
 
+    })
+
+    ctx.post('/refresh', async (req, res) => {
+
+        const refreshToken = req.cookies.refreshToken
+
+        if (!refreshToken) return res.code(401).send('No refresh token')
+
+        const result = await db.query('SELECT user_id, expires_at FROM refresh_token WHERE token = $1', [refreshToken])
+        const record = result.rows[0]
+
+        if (!record && new Date(record.expires_at) < new Date()) {
+            await db.query('DELETE FROM refresh_token WHERE token=$1', [refreshToken])
+            return res.code(401).send('Invalid refresh token')
+        }
+
+        const userResult = await db.query('SELECT id_user, full_name, role_id FROM app_user WHERE id_user=$1', [record.user_id])
+        const user = userResult.rows[0]
+
+        const newAccessToken = jwt.sign(
+            {
+                sub: user.id_user,
+                role: user.role_id
+            },
+            process.env.JWT_ACCESS_SECRET,
+            {expiresIn: '15m'}
+        )
+
+        return { accessToken: newAccessToken }
     })
 
 }
