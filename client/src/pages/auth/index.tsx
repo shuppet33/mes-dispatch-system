@@ -2,22 +2,30 @@ import {reatomComponent} from "@reatom/npm-react";
 import clsx from "clsx";
 import styles from './styles.module.css'
 import {getTokenAuthAsync} from "./model.ts";
+import {type FormEvent, useState} from "react";
+import {useNavigate, useSearch} from "@tanstack/react-router";
 
 
 export const AuthorizationPage = reatomComponent(({ctx}) => {
+    const [login, setLogin] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
+    const navigate = useNavigate()
+    const {redirect} = useSearch({from: '/login'});
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
+
         try {
-            await getTokenAuthAsync(ctx, 'admin', 'admin')
-        } catch (e) {
-            console.log('LOOOG error', e)
+            await getTokenAuthAsync(ctx, {login, password});
+            await navigate({to: redirect || '/dashboard'});
+        } catch {
+            console.log('не верный логин или пароль')
         }
     }
 
     return (
         <div className={styles.page}>
-            <form className={styles.form}>
+            <form className={styles.form} onSubmit={handleSubmit}>
                 <h1 className={styles.title}>Авторизация</h1>
 
                 <div className={styles.field}>
@@ -26,6 +34,9 @@ export const AuthorizationPage = reatomComponent(({ctx}) => {
                         type="text"
                         className={styles.input}
                         placeholder="Введите логин"
+
+                        value={login}
+                        onChange={(e) => setLogin(e.target.value)}
                     />
                 </div>
 
@@ -35,13 +46,15 @@ export const AuthorizationPage = reatomComponent(({ctx}) => {
                         type="password"
                         className={styles.input}
                         placeholder="Введите пароль"
+
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
 
                 <button
                     type="submit"
                     className={clsx(styles.button)}
-                    onClick={handleSubmit}
                 >
                     Войти
                 </button>
