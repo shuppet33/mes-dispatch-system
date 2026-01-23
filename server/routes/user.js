@@ -45,4 +45,18 @@ export const userRouters = (ctx) => {
         return reply.code(200).send(rows);
     });
 
+    ctx.delete('/user/:id', async (req, reply) => {
+        const { id } = req.params;
+
+        const result = await db.query(
+            `UPDATE app_user SET is_active = false WHERE id_user = $1 RETURNING id_user, login, role_id, is_active`, [id]
+        );
+
+        if (result.rowCount === 0) {
+            return reply.code(404).send({ message: 'User not found' });
+        }
+
+        return reply.code(200).send(result.rows[0]);
+    });
+
 }
