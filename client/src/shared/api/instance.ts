@@ -21,8 +21,13 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const currentRequest = error.config
+        const isAuth = reatomCtx.get(isAuthAtom);
 
-        if (error.response?.status === 401 && !currentRequest._retry) {
+        if (
+            error.response?.status === 401 &&
+            !currentRequest._retry &&
+            isAuth
+        ) {
             currentRequest._retry = true;
 
             try {
@@ -36,12 +41,12 @@ api.interceptors.response.use(
 
             } catch (refreshError) {
                 isAuthAtom(reatomCtx, false)
-                accessTokenAtom(reatomCtx, '')
-
+                accessTokenAtom(reatomCtx, null)
                 window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
         }
+        return Promise.reject(error);
     }
 )
 

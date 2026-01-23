@@ -1,46 +1,46 @@
-import {
-    createRootRoute,
-    createRoute,
-    createRouter,
-    Link,
-    Outlet, redirect,
-    RouterProvider
-} from '@tanstack/react-router'
+import {createRootRoute, createRoute, createRouter, Outlet, redirect, RouterProvider} from '@tanstack/react-router'
 
 import {TanStackRouterDevtools} from '@tanstack/react-router-devtools'
 import {AuthorizationPage} from "../pages/auth";
 import {reatomCtx} from "../shared/reatom-context";
-import {isAuthAtom} from "../shared/auth/model.ts";
+import {isAuthAtom, userRoleAtom} from "../shared/auth/model.ts";
+import {AdminPages} from "../pages/admin";
+import {ROLE_ROUTES} from "../shared/routes";
+import type {Role} from "../shared/types/auth.ts";
 
 export const rootRoute = createRootRoute({
     component: () => (
         <>
-            <nav>
-                <Link to='/login'>Auth</Link>
-            </nav>
             <Outlet/>
             <TanStackRouterDevtools/>
         </>
     ),
 })
 
-export const protectedLayout = createRoute({
+export const protectedLogin = createRoute({
     getParentRoute: () => rootRoute,
-    id: 'protected',
+    id: 'protectedLogin',
     beforeLoad: (ctx) => {
         if (!reatomCtx.get(isAuthAtom)) {
             throw redirect({
                 to: '/login',
-                search: { redirect: ctx.location.href },
+                search: {redirect: ctx.location.href},
             });
         }
     }
 })
 
-const mainRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: '/',
-    component: () => <div>главная</div>
+export const protectedRole = createRoute({
+    getParentRoute: () => protectedLogin,
+    id: 'protectedRole',
+    beforeLoad: (ctx) => {
+        const role = reatomCtx.get(userRoleAtom);
+
+        throw redirect({
+            to: ROLE_ROUTES[role as Role] || '/login',
+            search: {redirect: ctx.location.href},
+        })
+    }
 })
 
 const authRoute = createRoute({
@@ -49,17 +49,20 @@ const authRoute = createRoute({
     component: AuthorizationPage,
 })
 
-const dashboardRoute = createRoute({
-    getParentRoute: () => protectedLayout,
-    path: '/dashboard',
-    component: () => <div>админ дашбоард</div>
+const adminRoute = createRoute({
+    getParentRoute: () => protectedLogin,
+    path: '/admin',
+    component: AdminPages
 })
 
-protectedLayout.addChildren([dashboardRoute]);
 
-rootRoute.addChildren([protectedLayout, authRoute, mainRoute]);
+rootRoute.addChildren([protectedLogin, authRoute]);
 
-export const router = createRouter({ routeTree: rootRoute })
+protectedLogin.addChildren([protectedRole]);
+
+protectedRole.addChildren([adminRoute])
+
+export const router = createRouter({routeTree: rootRoute})
 
 declare module '@tanstack/react-router' {
     interface Register {
