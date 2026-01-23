@@ -35,6 +35,8 @@ export const userRouters = (ctx) => {
         }
     })
 
+
+
     ctx.get('/users/list', async (req, reply) => {
         const { rows } = await db.query(
             `SELECT * FROM app_user WHERE is_active = true`
