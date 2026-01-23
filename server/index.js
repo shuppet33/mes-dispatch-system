@@ -21,9 +21,12 @@ await app.register(cors, {
     origin: ['http://localhost:5173', 'http://localhost:3000'],
     credentials: true
 })
-app.register(authRoute, {prefix: '/api/v1'})
-app.register(requests, {prefix: '/api/v1'})
-app.register(userRouters, {prefix: '/api/v1'})
+
+const prefix = {prefix: '/api/v1'}
+
+app.register(authRoute, prefix)
+app.register(requests, prefix)
+app.register(userRouters, prefix)
 
 
 app.listen({port: 3000}, (err) => {
