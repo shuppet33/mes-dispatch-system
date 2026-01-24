@@ -5,6 +5,8 @@ import cors from '@fastify/cors';
 import cookie from "@fastify/cookie";
 import {requests} from "./routes/requests.js";
 import {userRouters} from "./routes/user.js";
+import {dispatcherAuth} from "./routes/dispatcher.js";
+import {serviceAuth} from "./routes/service.js";
 
 
 const app = Fastify({
@@ -27,6 +29,8 @@ const prefix = {prefix: '/api/v1'}
 app.register(authRoute, prefix)
 app.register(requests, prefix)
 app.register(userRouters, prefix)
+app.register(dispatcherAuth, prefix)
+app.register(serviceAuth, prefix)
 
 
 app.listen({port: 3000}, (err) => {
