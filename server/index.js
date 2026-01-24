@@ -3,7 +3,7 @@ import {authRoute} from "./routes/auth.js";
 import {db} from './config/db.js';
 import cors from '@fastify/cors';
 import cookie from "@fastify/cookie";
-import {requests} from "./routes/requests.js";
+import {requestRouter} from "./routes/requests.js";
 import {userRouters} from "./routes/user.js";
 
 
@@ -25,7 +25,7 @@ await app.register(cors, {
 const prefix = {prefix: '/api/v1'}
 
 app.register(authRoute, prefix)
-app.register(requests, prefix)
+app.register(requestRouter, prefix)
 app.register(userRouters, prefix)
 
 
