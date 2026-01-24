@@ -18,7 +18,7 @@ app.register(cookie, {
 })
 
 await app.register(cors, {
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: ['http://localhost:5173', 'http://localhost:3001'],
     credentials: true
 })
 

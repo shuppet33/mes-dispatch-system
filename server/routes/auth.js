@@ -7,11 +7,15 @@ import bcrypt from "bcryptjs";
 export const authRoute = (ctx) => {
 
     ctx.post('/login', async (req, res) => {
+
         const {login, password} = req.body
         if (!login || !password) return res.code(400).send('Bad Request')
 
         // запрос в БД на наличие юзера с таким логином
-        const userResult = await db.query('SELECT id_user, full_name, login, password_hash, role_id, is_active FROM app_user WHERE login=$1', [login])
+        const userResult = await db.query('SELECT id_user, full_name, login, password_hash, role_id, is_active FROM app_user WHERE login=$1 AND is_active=true', [login])
+        if (userResult.rows.length === 0) {
+            throw new Error('Пользователь не найден или отключён')
+        }
 
         const user = userResult.rows[0]
 
