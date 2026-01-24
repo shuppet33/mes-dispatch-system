@@ -1,11 +1,9 @@
 import {reatomComponent} from "@reatom/npm-react";
 import {Button, Group, PasswordInput, Select, Stack, TextInput} from "@mantine/core";
 import {useForm} from "@mantine/form";
-import {ROLE_TO_ID} from "../../shared/api/pattern.ts";
 
-import type {UserFormData, UserFormProps, UserFormValues, UserSubmitData} from './types.ts'
+import type {UserFormData, UserFormProps} from './types.ts'
 import type {FC} from "react";
-import type {Role} from "../../shared/types/auth.ts";
 
 const roles = [
     {value: 'dispatcher', label: 'Диспетчер'},
@@ -13,7 +11,7 @@ const roles = [
     {value: 'admin', label: 'Админ'},
 ];
 
-export const AddUserForm: FC<UserFormProps> = reatomComponent(({ctx, onCancel}) => {
+export const AddUserForm: FC<UserFormProps> = reatomComponent(({ctx, onCancel, onSubmit}) => {
     const form = useForm<UserFormData>({
         initialValues: {
             role: '',
@@ -48,21 +46,8 @@ export const AddUserForm: FC<UserFormProps> = reatomComponent(({ctx, onCancel}) 
         },
     });
 
-    const handleSubmit = (values: UserFormValues) => {
-
-        const submitData: UserSubmitData = {
-            role: ROLE_TO_ID[values.role as Role],
-            login: values.login,
-            password: values.password,
-            full_name: values.full_name,
-        };
-
-        console.log('LOOOG', submitData)
-    };
-
-
     return (
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form onSubmit={form.onSubmit(onSubmit)}>
             <Stack>
                 <Select
                     label="Роль"

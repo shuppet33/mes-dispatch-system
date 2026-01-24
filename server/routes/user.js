@@ -36,26 +36,40 @@ export const userRouters = (ctx) => {
     })
 
 
-
     ctx.get('/users/list', async (req, reply) => {
-        const { rows } = await db.query('SELECT id_user, login, full_name, phone, role_id, created_at FROM app_user WHERE is_active = true');
+        const {rows} = await db.query('SELECT id_user, login, full_name, phone, role_id, created_at FROM app_user WHERE is_active = true');
 
         return reply.code(200).send(rows);
     });
 
 
     ctx.delete('/user/:id', async (req, reply) => {
-        const { id } = req.params;
+        try {
+            const { id } = req.params;
 
-        const result = await db.query(
-            `UPDATE app_user SET is_active = false WHERE id_user = $1 RETURNING id_user, login, role_id, is_active`, [id]
-        );
+            if (!id) {
+                return reply.code(400).send({ message: 'ID is required' });
+            }
 
-        if (result.rowCount === 0) {
-            return reply.code(404).send({ message: 'User not found' });
+            const userId = Number(id);
+            if (isNaN(userId)) {
+                return reply.code(400).send({ message: 'Invalid ID format' });
+            }
+
+            const result = await db.query(
+                `UPDATE app_user SET is_active = false WHERE id_user = $1 RETURNING id_user`,
+                [userId]
+            );
+
+            if (result.rowCount === 0) {
+                return reply.code(404).send({ message: 'User not found' });
+            }
+
+            return reply.code(200).send(result.rows[0]);
+        } catch (error) {
+            console.error('DELETE /user/:id ERROR:', error);
+            return reply.code(500).send({ message: 'Internal server error' });
         }
-
-        return reply.code(200).send(result.rows[0]);
     });
 
 }

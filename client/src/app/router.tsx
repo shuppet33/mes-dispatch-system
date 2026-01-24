@@ -7,6 +7,7 @@ import {isAuthAtom, userRoleAtom} from "../shared/auth/model.ts";
 import {AdminPages} from "../pages/admin";
 import {ROLE_ROUTES} from "../shared/routes";
 import type {Role} from "../shared/types/auth.ts";
+import {DispatcherPage} from "../pages/dispatcher";
 
 export const rootRoute = createRootRoute({
     component: () => (
@@ -55,12 +56,18 @@ const adminRoute = createRoute({
     component: AdminPages
 })
 
+const dispatcherRoute = createRoute({
+    getParentRoute: () => protectedLogin,
+    path: '/dispatcher',
+    component: DispatcherPage
+})
+
 
 rootRoute.addChildren([protectedLogin, authRoute]);
 
 protectedLogin.addChildren([protectedRole]);
 
-protectedRole.addChildren([adminRoute])
+protectedRole.addChildren([adminRoute, dispatcherRoute])
 
 export const router = createRouter({routeTree: rootRoute})
 

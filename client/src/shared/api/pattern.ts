@@ -37,3 +37,10 @@ export const PRIORITY_PATTERN = {
     4: 'Чрезвычайный',
 } as const;
 
+export const PRIORITY_TO_ID = {
+    ['Низкий']: 1,
+    ['Средний']: 2,
+    ['Высокий']: 3,
+    ['Чрезвычайный']: 4,
+}
+

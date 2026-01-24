@@ -17,16 +17,17 @@ app.register(cookie, {
     parseOptions: {}
 })
 
-await app.register(cors, {
+app.register(cors, {
     origin: ['http://localhost:5173', 'http://localhost:3000'],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
 })
 
 const prefix = {prefix: '/api/v1'}
 
-app.register(authRoute, prefix)
-app.register(requestRouter, prefix)
-app.register(userRouters, prefix)
+await app.register(authRoute, prefix)
+await app.register(requestRouter, prefix)
+await app.register(userRouters, prefix)
 
 
 app.listen({port: 3000}, (err) => {

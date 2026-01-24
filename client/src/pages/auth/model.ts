@@ -20,7 +20,7 @@ export const logOutAsync = reatomAsync((ctx) => {
     return ctx.schedule(async () => {
         try {
             await logout()
-        } catch (e) {
+        } catch (error) {
             console.log('LogOut failed', error)
         }
     })

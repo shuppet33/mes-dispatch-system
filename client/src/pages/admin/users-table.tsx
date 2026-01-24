@@ -8,9 +8,11 @@ import {ROLE_PATTERN, ROLE_RUS} from "../../shared/api/pattern.ts";
 type UserTableProps = {
     users: User[];
     onDelete: (id: number) => void;
+    isLoading?: boolean;
+    isDeleting?: boolean;
 };
 
-export const UserTable = ({users, onDelete}: UserTableProps) => {
+export const UserTable = ({users, onDelete, isDeleting, isLoading}: UserTableProps) => {
     const [filters, setFilters] = useState({
         id_user: '',
         login: '',
@@ -114,6 +116,7 @@ export const UserTable = ({users, onDelete}: UserTableProps) => {
                                                 variant="light"
                                                 color="red"
                                                 onClick={() => onDelete(user.id_user)}
+                                                loading={isDeleting}
                                             >
                                                 <IconTrash size={16}/>
                                             </ActionIcon>
