@@ -111,7 +111,7 @@ export const authMiddleware = async (req, res) => {
 
     const [type, token] = authHeader.split(' ')
 
-    if (type !== 'Bearer' || !token) {
+    if (type !== 'Token' || !token) {
         throw new Error('Invalid Authorization format')
     }
 
