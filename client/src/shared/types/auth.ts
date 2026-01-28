@@ -6,7 +6,6 @@ export type UserType = {
 
 export type LoginResponse = {
     accessToken: string;
-    refreshToken: string;
     user: UserType;
 };
 
@@ -14,3 +13,5 @@ export type LoginRequest = {
     login: string;
     password: string;
 };
+
+export type Role = 'admin' | 'dispatcher' | 'service'

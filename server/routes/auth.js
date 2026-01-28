@@ -100,6 +100,20 @@ export const authRoute = (ctx) => {
             sameSite: 'lax',
             path: '/',
         });
+
+    })
+
+    ctx.post('/logout', async (req, res) => {
+        const refreshToken = req.cookies.refreshToken
+
+        await db.query('UPDATE refresh_token SET is_revoked = true WHERE token = $1 AND is_revoked = false', [refreshToken])
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            path: '/',
+        });
 })
 
 export const authMiddleware = async (req, res) => {

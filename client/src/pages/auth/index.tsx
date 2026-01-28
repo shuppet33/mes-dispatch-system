@@ -4,20 +4,24 @@ import styles from './styles.module.css'
 import {getTokenAuthAsync} from "./model.ts";
 import {type FormEvent, useState} from "react";
 import {useNavigate, useSearch} from "@tanstack/react-router";
+import {userNameAtom, userRoleAtom} from "../../shared/auth/model.ts";
+import {ROLE_PATTERN} from "../../shared/api/pattern.ts";
 
 
 export const AuthorizationPage = reatomComponent(({ctx}) => {
     const [login, setLogin] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const {redirect} = useSearch({from: '/login'});
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-
         try {
-            await getTokenAuthAsync(ctx, {login, password});
-            await navigate({to: redirect || '/dashboard'});
+            const {user} = await getTokenAuthAsync(ctx, {login, password});
+            userNameAtom(ctx, user.username)
+            userRoleAtom(ctx, ROLE_PATTERN[user.role])
+
+            await navigate({to: redirect || `/${ROLE_PATTERN[user.role]}`});
         } catch {
             console.log('не верный логин или пароль')
         }
