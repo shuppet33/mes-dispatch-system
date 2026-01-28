@@ -100,7 +100,7 @@ export const authRoute = (ctx) => {
             sameSite: 'lax',
             path: '/',
         });
-}
+})
 
 export const authMiddleware = async (req, res) => {
     const authHeader = req.headers.authorization
