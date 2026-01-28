@@ -86,7 +86,29 @@ export const authRoute = (ctx) => {
             {expiresIn: '15m'}
         )
 
-        return { accessToken: newAccessToken }
+        return {accessToken: newAccessToken}
     })
-
+    ;
 }
+
+export const authMiddleware = async (req, res) => {
+    const authHeader = req.headers.authorization
+
+    if (!authHeader) {
+        throw new Error('No Authorization header')
+    }
+
+    const [type, token] = authHeader.split(' ')
+
+    if (type !== 'Bearer' || !token) {
+        throw new Error('Invalid Authorization format')
+    }
+
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
+
+    req.user = {
+        id: payload.sub,
+        role: payload.role
+    }
+}
+
