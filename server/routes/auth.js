@@ -7,11 +7,15 @@ import bcrypt from "bcryptjs";
 export const authRoute = (ctx) => {
 
     ctx.post('/login', async (req, res) => {
+
         const {login, password} = req.body
         if (!login || !password) return res.code(400).send('Bad Request')
 
         // запрос в БД на наличие юзера с таким логином
-        const userResult = await db.query('SELECT id_user, full_name, login, password_hash, role_id, is_active FROM app_user WHERE login=$1', [login])
+        const userResult = await db.query('SELECT id_user, full_name, login, password_hash, role_id, is_active FROM app_user WHERE login=$1 AND is_active=true', [login])
+        if (userResult.rows.length === 0) {
+            throw new Error('Пользователь не найден или отключён')
+        }
 
         const user = userResult.rows[0]
 
@@ -96,6 +100,40 @@ export const authRoute = (ctx) => {
             sameSite: 'lax',
             path: '/',
         });
+
     })
 
+    ctx.post('/logout', async (req, res) => {
+        const refreshToken = req.cookies.refreshToken
+
+        await db.query('UPDATE refresh_token SET is_revoked = true WHERE token = $1 AND is_revoked = false', [refreshToken])
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            path: '/',
+        });
+})
+
+export const authMiddleware = async (req, res) => {
+    const authHeader = req.headers.authorization
+
+    if (!authHeader) {
+        throw new Error('No Authorization header')
+    }
+
+    const [type, token] = authHeader.split(' ')
+
+    if (type !== 'Token' || !token) {
+        throw new Error('Invalid Authorization format')
+    }
+
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET)
+
+    req.user = {
+        id: payload.sub,
+        role: payload.role
+    }
 }
+
