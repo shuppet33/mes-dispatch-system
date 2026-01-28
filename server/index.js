@@ -1,39 +1,46 @@
 import Fastify from 'fastify'
-import {authRoute} from "./routes/auth.js";
-import {db} from './config/db.js';
-import cors from '@fastify/cors';
-import cookie from "@fastify/cookie";
-import {requests} from "./routes/requests.js";
-import {userRouters} from "./routes/user.js";
-import {dispatcherAuth} from "./routes/dispatcher.js";
-import {serviceAuth} from "./routes/service.js";
+import { authRoute, authMiddleware } from './routes/auth.js'
+import { db } from './config/db.js'
+import cors from '@fastify/cors'
+import cookie from '@fastify/cookie'
+import { requests } from './routes/requests.js'
+import { userRouters } from './routes/user.js'
+import { serviceRouter } from './routes/service.js'
 
+const app = Fastify({ logger: false })
 
-const app = Fastify({
-    logger: true
-})
+app.decorate('db', db)
 
-app.decorate('db', db);
-app.register(cookie, {
-    secret: "my-secret",
-    parseOptions: {}
+await app.register(cookie, {
+    secret: 'my-secret'
 })
 
 await app.register(cors, {
-    origin: ['http://localhost:5173', 'http://localhost:3001'],
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
     credentials: true
 })
 
-const prefix = {prefix: '/api/v1'}
 
-app.register(authRoute, prefix)
-app.register(requests, prefix)
-app.register(userRouters, prefix)
-app.register(dispatcherAuth, prefix)
-app.register(serviceAuth, prefix)
+app.register(authRoute, {
+    prefix: '/api/v1'
+})
+
+app.register(requests, {
+    prefix: '/api/v1',
+    preHandler: authMiddleware
+})
+
+app.register(userRouters, {
+    prefix: '/api/v1',
+    preHandler: authMiddleware
+})
+
+app.register(serviceRouter, {
+    prefix: '/api/v1'
+})
 
 
-app.listen({port: 3000}, (err) => {
+app.listen({ port: 3000 }, err => {
     if (err) {
         app.log.error(err)
         process.exit(1)
