@@ -1,7 +1,7 @@
 import {db} from "../config/db.js";
 import {authMiddleware} from "./auth.js";
 
-export const requests = (ctx) => {
+export const requestRoute = (ctx) => {
 
     ctx.get('/requests/list',{preHandler: authMiddleware}, async (req, res) => {
         const userResult = await db.query('select * from request')

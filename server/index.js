@@ -3,9 +3,9 @@ import { authRoute, authMiddleware } from './routes/auth.js'
 import { db } from './config/db.js'
 import cors from '@fastify/cors'
 import cookie from '@fastify/cookie'
-import { requests } from './routes/requests.js'
-import { userRouters } from './routes/user.js'
-import { serviceRouter } from './routes/service.js'
+import { requestRoute } from './routes/requests.js'
+import { userRoute } from './routes/user.js'
+import { serviceRoute } from './routes/service.js'
 
 const app = Fastify({ logger: false })
 
@@ -25,17 +25,17 @@ app.register(authRoute, {
     prefix: '/api/v1'
 })
 
-app.register(requests, {
+app.register(requestRoute, {
     prefix: '/api/v1',
     preHandler: authMiddleware
 })
 
-app.register(userRouters, {
+app.register(userRoute, {
     prefix: '/api/v1',
     preHandler: authMiddleware
 })
 
-app.register(serviceRouter, {
+app.register(serviceRoute, {
     prefix: '/api/v1'
 })
 

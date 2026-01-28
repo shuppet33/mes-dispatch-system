@@ -2,7 +2,7 @@ import {db} from "../config/db.js";
 import {authMiddleware} from "./auth.js";
 
 
-export const serviceRouter = (ctx) => {
+export const serviceRoute = (ctx) => {
 
     ctx.get('/services',{preHandler: authMiddleware}, async (req, res) => {
         const {rows} = await db.query(

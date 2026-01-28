@@ -1,7 +1,7 @@
 import {db} from "../config/db.js";
 import bcrypt from "bcryptjs";
 
-export const userRouters = (ctx) => {
+export const userRoute = (ctx) => {
 
     ctx.post('/user', async (req, res) => {
         const {login, password, role, full_name} = req.body
