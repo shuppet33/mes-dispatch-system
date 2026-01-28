@@ -4,6 +4,8 @@ import {reatomContext} from '@reatom/npm-react'
 import {reatomCtx} from "../shared/reatom-context";
 import {accessTokenAtom, isAuthAtom} from "../shared/auth/model.ts";
 import {api} from "../shared/api/instance.ts";
+import '@mantine/core/styles.css';
+import {MantineProvider} from '@mantine/core';
 
 import '../shared/ui/reset.css'
 import '../shared/ui/main.css'
@@ -20,9 +22,11 @@ const initApp = async () => {
 
     createRoot(document.getElementById('root')!).render(
         <reatomContext.Provider value={reatomCtx}>
-            <AppRouter/>
+            <MantineProvider>
+                <AppRouter/>
+            </MantineProvider>
         </reatomContext.Provider>
     )
 }
 
-initApp()
+await initApp()
