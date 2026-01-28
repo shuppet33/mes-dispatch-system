@@ -36,7 +36,6 @@ export const userRouters = (ctx) => {
     })
 
 
-
     ctx.get('/users/list', async (req, reply) => {
         const { rows } = await db.query('SELECT id_user, login, full_name, phone, role_id, created_at FROM app_user WHERE is_active = true');
 
